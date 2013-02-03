@@ -3,6 +3,7 @@
 
 #include <QFileDialog>
 #include <QTableWidget>
+#include <QTableWidgetItem>
 
 #include <QDebug>
 
@@ -14,6 +15,7 @@ qrcode_time_reader::qrcode_time_reader(QWidget *parent) :
 
   QAction *openAct(findChild<QAction*>("actionImport_photos"));
   connect(openAct, SIGNAL(triggered()), this, SLOT(openFiles()));
+  openAct->setShortcut(QKeySequence("Ctrl+o"));
 
   m_photoTable = findChild<QTableWidget*>("photoList");
 }
@@ -25,12 +27,23 @@ qrcode_time_reader::~qrcode_time_reader()
 
 void qrcode_time_reader::openFiles()
 {
-  QFileDialog::Options options;
   m_files = QFileDialog::getOpenFileNames(
-        this, NULL,
-        m_openFilesPath,
+        NULL, NULL,
+        "",
         tr("Photos (*.jpg)"),
         NULL,
-        options);
+        NULL);
+
+  m_photoTable->setRowCount(m_files.count());
+  for (int i = 0; i < m_files.count(); ++i)
+    {
+      QTableWidgetItem *name = new QTableWidgetItem(m_files[i].remove(0, m_files[i].lastIndexOf("/") + 1));
+      name->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+      m_photoTable->setItem(i, 0, name);
+
+      QTableWidgetItem *status = new QTableWidgetItem("<reading>");
+      status->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+      m_photoTable->setItem(i, 1, status);
+    }
 }
 
