@@ -4,6 +4,8 @@
 #include <QFileDialog>
 #include <QTableWidget>
 #include <QTableWidgetItem>
+#include <QPixmap>
+#include "resizinglabel.h"
 
 #include <QDebug>
 
@@ -18,6 +20,9 @@ qrcode_time_reader::qrcode_time_reader(QWidget *parent) :
   openAct->setShortcut(QKeySequence("Ctrl+o"));
 
   m_photoTable = findChild<QTableWidget*>("photoList");
+  connect(m_photoTable, SIGNAL(currentCellChanged(int,int,int,int)), this, SLOT(previewCurrentPhoto(int,int,int,int)));
+
+  m_preview = findChild<ResizingLabel*>("photoPreview");
 }
 
 qrcode_time_reader::~qrcode_time_reader()
@@ -37,7 +42,8 @@ void qrcode_time_reader::openFiles()
   m_photoTable->setRowCount(m_files.count());
   for (int i = 0; i < m_files.count(); ++i)
     {
-      QTableWidgetItem *name = new QTableWidgetItem(m_files[i].remove(0, m_files[i].lastIndexOf("/") + 1));
+      QString filename = m_files[i];
+      QTableWidgetItem *name = new QTableWidgetItem(filename.remove(0, m_files[i].lastIndexOf("/") + 1));
       name->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
       m_photoTable->setItem(i, 0, name);
 
@@ -47,3 +53,7 @@ void qrcode_time_reader::openFiles()
     }
 }
 
+void qrcode_time_reader::previewCurrentPhoto(int currentRow, int /* currentColumn */, int /* previousRow */, int /* previousColumn */)
+{
+  m_preview->setPixmap(QPixmap(m_files[currentRow]));
+}

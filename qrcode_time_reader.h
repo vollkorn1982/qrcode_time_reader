@@ -4,6 +4,7 @@
 #include <QMainWindow>
 
 class QTableWidget;
+class ResizingLabel;
 
 namespace Ui {
   class qrcode_time_reader;
@@ -19,12 +20,13 @@ public:
 
 protected slots:
   void openFiles();
+  void previewCurrentPhoto(int currentRow, int currentColumn, int previousRow, int previousColumn);
   
 private:
   Ui::qrcode_time_reader *ui;
-  QString                 m_openFilesPath;
   QStringList             m_files;
   QTableWidget           *m_photoTable;
+  ResizingLabel          *m_preview;
 };
 
 #endif // QRCODE_TIME_READER_H

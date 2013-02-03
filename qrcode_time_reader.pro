@@ -13,8 +13,10 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        qrcode_time_reader.cpp
+        qrcode_time_reader.cpp \
+    resizinglabel.cpp
 
-HEADERS  += qrcode_time_reader.h
+HEADERS  += qrcode_time_reader.h \
+    resizinglabel.h
 
 FORMS    += qrcode_time_reader.ui

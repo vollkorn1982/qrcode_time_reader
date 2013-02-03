@@ -18,9 +18,15 @@
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
-       <widget class="QLabel" name="photoPreview">
+       <widget class="ResizingLabel" name="photoPreview">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="text">
-         <string>&lt;photo&gt;</string>
+         <string/>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -31,29 +37,32 @@
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
          <widget class="QPushButton" name="fixTimes">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="text">
-           <string>fix &amp;timestamps</string>
+           <string>Fix &amp;timestamps</string>
           </property>
          </widget>
         </item>
         <item>
          <widget class="QLabel" name="exifTime">
           <property name="text">
-           <string>&lt;EXIF time&gt;</string>
+           <string>EXIF time:</string>
           </property>
          </widget>
         </item>
         <item>
          <widget class="QLabel" name="encodedTime">
           <property name="text">
-           <string>&lt;encoded time&gt;</string>
+           <string>QR time:</string>
           </property>
          </widget>
         </item>
         <item>
          <widget class="QLabel" name="timeDifference">
           <property name="text">
-           <string>&lt;time difference&gt;</string>
+           <string>Difference:</string>
           </property>
          </widget>
         </item>
@@ -86,12 +95,12 @@
       </attribute>
       <column>
        <property name="text">
-        <string>filename</string>
+        <string>Filename</string>
        </property>
       </column>
       <column>
        <property name="text">
-        <string>status</string>
+        <string>Status</string>
        </property>
       </column>
      </widget>
@@ -131,6 +140,13 @@
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>ResizingLabel</class>
+   <extends>QLabel</extends>
+   <header>resizinglabel.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>
