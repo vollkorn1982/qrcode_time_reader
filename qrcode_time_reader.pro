@@ -11,6 +11,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = qrcode_time_reader
 TEMPLATE = app
 
+LIBS += -lexiv2
 
 SOURCES += main.cpp\
         qrcode_time_reader.cpp \

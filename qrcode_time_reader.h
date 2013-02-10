@@ -2,9 +2,11 @@
 #define QRCODE_TIME_READER_H
 
 #include <QMainWindow>
+#include <QDateTime>
 
 class QTableWidget;
 class ResizingLabel;
+class QLabel;
 
 namespace Ui {
   class qrcode_time_reader;
@@ -23,10 +25,16 @@ protected slots:
   void previewCurrentPhoto(int currentRow, int currentColumn, int previousRow, int previousColumn);
   
 private:
+  void displayExif(const QString &filename);
+
+private:
   Ui::qrcode_time_reader *ui;
   QStringList             m_files;
   QTableWidget           *m_photoTable;
   ResizingLabel          *m_preview;
+  QLabel                 *m_exifLabel;
+  QDateTime               m_currentPicExifDateTime;
+  QDateTime               m_currentPicQRDateTime;
 };
 
 #endif // QRCODE_TIME_READER_H
