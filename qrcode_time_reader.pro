@@ -11,7 +11,9 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = qrcode_time_reader
 TEMPLATE = app
 
-LIBS += -lexiv2
+INCLUDEPATH += /usr/include/opencv/
+
+LIBS += -lexiv2 -ldecodeqr -lopencv_highgui -lopencv_core
 
 SOURCES += main.cpp\
         qrcode_time_reader.cpp \

@@ -26,6 +26,7 @@ protected slots:
   
 private:
   void displayExif(const QString &filename);
+  void readQRCode(const QString &filename);
 
 private:
   Ui::qrcode_time_reader *ui;
@@ -33,6 +34,7 @@ private:
   QTableWidget           *m_photoTable;
   ResizingLabel          *m_preview;
   QLabel                 *m_exifLabel;
+  QLabel                 *m_qrLabel;
   QDateTime               m_currentPicExifDateTime;
   QDateTime               m_currentPicQRDateTime;
 };
