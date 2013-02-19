@@ -36,6 +36,9 @@ qrcode_time_reader::qrcode_time_reader(QWidget *parent) :
   m_preview = findChild<ResizingLabel*>("photoPreview");
   m_exifLabel = findChild<QLabel*>("exifTime_data");
   m_qrLabel = findChild<QLabel*>("qrTime_data");
+
+  m_currentPicQRDateTime.setTimeSpec(Qt::UTC);
+  m_currentPicExifDateTime.setTimeSpec(Qt::UTC);
 }
 
 qrcode_time_reader::~qrcode_time_reader()
@@ -94,8 +97,9 @@ void qrcode_time_reader::displayExif(const QString &filename)
     }
   else {
       Exiv2::Exifdatum exivDatum(exifData["Exif.Photo.DateTimeOriginal"]);
-      m_currentPicExifDateTime = QDateTime::fromString(QString::fromStdString(exivDatum.toString()), "yyyy:MM:dd hh:mm:ss");
-      m_exifLabel->setText(m_currentPicExifDateTime.toString());
+      QDateTime time = QDateTime::fromString(QString::fromStdString(exivDatum.toString()), "yyyy:MM:dd hh:mm:ss");
+      m_currentPicExifDateTime.setTime_t(time.toTime_t());
+      m_exifLabel->setText(m_currentPicExifDateTime.toString() + " UTC");
     }
   return;
 }
@@ -116,8 +120,8 @@ void qrcode_time_reader::readQRCode(const QString &filename)
       // To null terminate, a buffer size is larger than body size.
       char *buf = new char[header.byte_size + 1];
       qr_decoder_get_body(decoder, (unsigned char *)buf, header.byte_size + 1);
-      m_currentPicQRDateTime = QDateTime::fromTime_t(QString(buf).toUInt());
-      m_qrLabel->setText(m_currentPicQRDateTime.toString());
+      m_currentPicQRDateTime.setTime_t(QString(buf).toUInt());
+      m_qrLabel->setText(m_currentPicQRDateTime.toString() + " UTC");
     }
   else {
       m_qrLabel->setText(tr("<no data>"));
