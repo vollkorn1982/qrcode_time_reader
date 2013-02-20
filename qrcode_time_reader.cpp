@@ -106,7 +106,14 @@ void qrcode_time_reader::displayExif(const QString &filename)
 
 void qrcode_time_reader::readQRCode(const QString &filename)
 {
-  IplImage *src = cvLoadImage(QFile::encodeName(filename).data());
+  QImage resizeImage(filename);
+  resizeImage = resizeImage.scaledToWidth(640, Qt::SmoothTransformation);
+  resizeImage.save(filename + ".tmp", "JPG");
+
+  IplImage *src = cvLoadImage(QFile::encodeName(filename + ".tmp").data());
+
+  QFile file(filename + ".tmp");
+  file.remove();
 
   if (!src)
     return;
