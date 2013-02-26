@@ -36,6 +36,7 @@ qrcode_time_reader::qrcode_time_reader(QWidget *parent) :
   m_preview = findChild<ResizingLabel*>("photoPreview");
   m_exifLabel = findChild<QLabel*>("exifTime_data");
   m_qrLabel = findChild<QLabel*>("qrTime_data");
+  m_timeDifference = findChild<QLabel*>("timeDiff_data");
 
   m_currentPicQRDateTime.setTimeSpec(Qt::UTC);
   m_currentPicExifDateTime.setTimeSpec(Qt::UTC);
@@ -66,6 +67,7 @@ void qrcode_time_reader::openFiles()
       QTableWidgetItem *status = new QTableWidgetItem("<reading>");
       status->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
       m_photoTable->setItem(i, 1, status);
+
     }
 }
 
@@ -74,17 +76,46 @@ void qrcode_time_reader::previewCurrentPhoto(int currentRow, int /* currentColum
   m_preview->setPixmap(QPixmap(m_files[currentRow]));
   qDebug() << QImage(m_files[currentRow]).text();
 
-  displayExif(m_files[currentRow]);
-  readQRCode(m_files[currentRow]);
+  bool exifOk = false;
+  uint exifTime = displayExif(m_files[currentRow], exifOk);
+  if (exifOk)
+    {
+      m_currentPicExifDateTime.setTime_t(exifTime);
+      m_exifLabel->setText(m_currentPicExifDateTime.toString() + " UTC");
+    }
+  else
+    m_exifLabel->setText(tr("<no data>"));
+
+  bool qrOk = false;
+  uint qrTime = readQRCode(m_files[currentRow], qrOk);
+  if (qrOk)
+    {
+      m_currentPicQRDateTime.setTime_t(qrTime);
+      m_qrLabel->setText(m_currentPicQRDateTime.toString() + " UTC");
+    }
+  else
+    m_qrLabel->setText(tr("<no data>"));
+
+  if (qrOk && exifOk)
+    {
+      int difference = exifTime - qrTime;
+      m_timeDifference->setText(QString::number(difference) + tr(" seconds"));
+    }
+  else
+    m_timeDifference->setText(tr("<no data>"));
 }
 
 //! \brief Read EXIF time header and display it.
 //! @param[in] filename Path and filename of the picture to display
-void qrcode_time_reader::displayExif(const QString &filename)
+//! @return time in seconds since 01.01.1970, -1 if invalid
+uint qrcode_time_reader::displayExif(const QString &filename, bool &bOk)
 {
   QFile file(filename);
   if (!file.open(QIODevice::ReadOnly))
-    return;
+    {
+      bOk = false;
+      return 0;
+    }
 
   QByteArray imageData(file.readAll());
   Exiv2::Image::AutoPtr image = Exiv2::ImageFactory::open((unsigned char *)imageData.data(), imageData.count());
@@ -93,18 +124,22 @@ void qrcode_time_reader::displayExif(const QString &filename)
 
   Exiv2::ExifData &exifData = image->exifData();
   if (exifData.empty()) {
-      m_exifLabel->setText(tr("<no data>"));
+      bOk = false;
+      return 0;
     }
   else {
       Exiv2::Exifdatum exivDatum(exifData["Exif.Photo.DateTimeOriginal"]);
       QDateTime time = QDateTime::fromString(QString::fromStdString(exivDatum.toString()), "yyyy:MM:dd hh:mm:ss");
-      m_currentPicExifDateTime.setTime_t(time.toTime_t());
-      m_exifLabel->setText(m_currentPicExifDateTime.toString() + " UTC");
+      bOk = true;
+      return time.toTime_t();
     }
-  return;
 }
 
-void qrcode_time_reader::readQRCode(const QString &filename)
+//! \brief Read QR code time and display it.
+//! @param[in] filename Path and filename of the picture to display
+//! @param[out] bOk false wenn keine Konvertierung möglich ist
+//! @return time in seconds since 01.01.1970, -1 if invalid
+uint qrcode_time_reader::readQRCode(const QString &filename, bool &bOk)
 {
   QImage resizeImage(filename);
   resizeImage = resizeImage.scaledToWidth(640, Qt::SmoothTransformation);
@@ -116,10 +151,15 @@ void qrcode_time_reader::readQRCode(const QString &filename)
   file.remove();
 
   if (!src)
-    return;
+    {
+      bOk = false;
+      return 0;
+    }
 
   QrDecoderHandle decoder = qr_decoder_open();
   qr_decoder_decode_image(decoder,src);
+
+  uint time;
 
   QrCodeHeader header;
   if (qr_decoder_get_header(decoder, &header)) {
@@ -127,13 +167,15 @@ void qrcode_time_reader::readQRCode(const QString &filename)
       // To null terminate, a buffer size is larger than body size.
       char *buf = new char[header.byte_size + 1];
       qr_decoder_get_body(decoder, (unsigned char *)buf, header.byte_size + 1);
-      m_currentPicQRDateTime.setTime_t(QString(buf).toUInt());
-      m_qrLabel->setText(m_currentPicQRDateTime.toString() + " UTC");
+
+      time = QString(buf).toUInt();
+      bOk = true;
     }
   else {
-      m_qrLabel->setText(tr("<no data>"));
+      bOk = false;
     }
 
   qr_decoder_close(decoder);
   cvReleaseImage(&src);
+  return time;
 }
