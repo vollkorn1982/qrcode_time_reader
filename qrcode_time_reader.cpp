@@ -64,10 +64,9 @@ void qrcode_time_reader::openFiles()
       name->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
       m_photoTable->setItem(i, 0, name);
 
-      QTableWidgetItem *status = new QTableWidgetItem("<reading>");
+      QTableWidgetItem *status = new QTableWidgetItem(tr("<reading>"));
       status->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
       m_photoTable->setItem(i, 1, status);
-
     }
 }
 
@@ -105,9 +104,10 @@ void qrcode_time_reader::previewCurrentPhoto(int currentRow, int /* currentColum
     m_timeDifference->setText(tr("<no data>"));
 }
 
-//! \brief Read EXIF time header and display it.
+//! \brief Read EXIF time header.
 //! @param[in] filename Path and filename of the picture to display
-//! @return time in seconds since 01.01.1970, -1 if invalid
+//! @param[out] bOk false if no time could be read
+//! @return time in seconds since 01.01.1970, undefined if no time was found
 uint qrcode_time_reader::displayExif(const QString &filename, bool &bOk)
 {
   QFile file(filename);
@@ -135,10 +135,10 @@ uint qrcode_time_reader::displayExif(const QString &filename, bool &bOk)
     }
 }
 
-//! \brief Read QR code time and display it.
+//! \brief Read QR code time.
 //! @param[in] filename Path and filename of the picture to display
-//! @param[out] bOk false wenn keine Konvertierung möglich ist
-//! @return time in seconds since 01.01.1970, -1 if invalid
+//! @param[out] bOk false if no time could be read
+//! @return time in seconds since 01.01.1970, undefined if no time was found
 uint qrcode_time_reader::readQRCode(const QString &filename, bool &bOk)
 {
   QImage resizeImage(filename);
