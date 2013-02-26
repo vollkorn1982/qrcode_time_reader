@@ -30,7 +30,7 @@ private:
 
 private:
   Ui::qrcode_time_reader *ui;
-  QStringList             m_files;
+  QStringList             m_files; //!< List of all read filenames
   QTableWidget           *m_photoTable;
   ResizingLabel          *m_preview;
   QLabel                 *m_exifLabel;

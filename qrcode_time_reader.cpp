@@ -47,6 +47,7 @@ qrcode_time_reader::~qrcode_time_reader()
   delete ui;
 }
 
+//! \brief Opens a file dialog for the user to select files to load.
 void qrcode_time_reader::openFiles()
 {
   m_files = QFileDialog::getOpenFileNames(
@@ -57,8 +58,7 @@ void qrcode_time_reader::openFiles()
         NULL);
 
   m_photoTable->setRowCount(m_files.count());
-  for (int i = 0; i < m_files.count(); ++i)
-    {
+  for (int i = 0; i < m_files.count(); ++i) {
       QString filename = m_files[i];
       QTableWidgetItem *name = new QTableWidgetItem(filename.remove(0, m_files[i].lastIndexOf("/") + 1));
       name->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
@@ -70,6 +70,8 @@ void qrcode_time_reader::openFiles()
     }
 }
 
+//! \brief Displays the times and their difference in the preview
+//! @param[in] currentRow the row corresponds to the index in
 void qrcode_time_reader::previewCurrentPhoto(int currentRow, int /* currentColumn */, int /* previousRow */, int /* previousColumn */)
 {
   m_preview->setPixmap(QPixmap(m_files[currentRow]));
@@ -77,8 +79,7 @@ void qrcode_time_reader::previewCurrentPhoto(int currentRow, int /* currentColum
 
   bool exifOk = false;
   uint exifTime = displayExif(m_files[currentRow], exifOk);
-  if (exifOk)
-    {
+  if (exifOk) {
       m_currentPicExifDateTime.setTime_t(exifTime);
       m_exifLabel->setText(m_currentPicExifDateTime.toString() + " UTC");
     }
@@ -87,16 +88,14 @@ void qrcode_time_reader::previewCurrentPhoto(int currentRow, int /* currentColum
 
   bool qrOk = false;
   uint qrTime = readQRCode(m_files[currentRow], qrOk);
-  if (qrOk)
-    {
+  if (qrOk) {
       m_currentPicQRDateTime.setTime_t(qrTime);
       m_qrLabel->setText(m_currentPicQRDateTime.toString() + " UTC");
     }
   else
     m_qrLabel->setText(tr("<no data>"));
 
-  if (qrOk && exifOk)
-    {
+  if (qrOk && exifOk) {
       int difference = exifTime - qrTime;
       m_timeDifference->setText(QString::number(difference) + tr(" seconds"));
     }
@@ -111,8 +110,7 @@ void qrcode_time_reader::previewCurrentPhoto(int currentRow, int /* currentColum
 uint qrcode_time_reader::displayExif(const QString &filename, bool &bOk)
 {
   QFile file(filename);
-  if (!file.open(QIODevice::ReadOnly))
-    {
+  if (!file.open(QIODevice::ReadOnly)) {
       bOk = false;
       return 0;
     }
@@ -150,8 +148,7 @@ uint qrcode_time_reader::readQRCode(const QString &filename, bool &bOk)
   QFile file(filename + ".tmp");
   file.remove();
 
-  if (!src)
-    {
+  if (!src) {
       bOk = false;
       return 0;
     }
